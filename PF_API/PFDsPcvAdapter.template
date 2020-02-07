@@ -1,0 +1,455 @@
+#!/bin/bash
+
+ADMIN_PW=$(echo ENC_ADMIN_PW | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
+B64_ADMIN_PW=$(echo -n 'administrator:'$ADMIN_PW'' | base64)
+SHORT_NAME=$(hostname -s)
+FQDN=$(hostname -f)
+ROOT_USER_PASSWORD=$( echo ENC_ROOT_USER_PASSWORD | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
+echo "Creating data store"
+curl --insecure -X POST \
+  https://localhost:9999/pf-admin-api/v1/dataStores \
+  -H 'Accept: */*' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Authorization: Basic '$B64_ADMIN_PW'' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 399' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: localhost:9999' \
+  -H 'X-XSRF-Header: pingfederate' \
+  -H 'cache-control: no-cache' \
+  -d '{
+  "type": "LDAP",
+  "id": "DATA_STORE_ID",
+  "maskAttributeValues": "false",
+  "hostnames": [
+                "PING_DIR_HOSTS:LDAP_PORT"
+            ],
+  "ldapType": "PING_DIRECTORY",
+  "bindAnonymously": "false",
+  "userDN": "ROOT_USER_DN",
+  "password": "'$ROOT_USER_PASSWORD'",
+  "useDnsSrvRecords": "false",
+  "name": "DATA_STORE_NAME",
+  "createIfNecessary": "true",
+  "verifyHost": "true"
+}'
+printf "\n"
+printf "\n"
+echo "Creating password credential validator"
+curl --insecure -X POST \
+  https://localhost:9999/pf-admin-api/v1/passwordCredentialValidators \
+  -H 'Accept: */*' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Authorization: Basic '$B64_ADMIN_PW'' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 3163' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: localhost:9999' \
+  -H 'X-XSRF-Header: pingfederate' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    "id": "PCV_ID",
+            "name": "PCV_NAME",
+            "pluginDescriptorRef": {
+                "id": "org.sourceid.saml20.domain.LDAPUsernamePasswordCredentialValidator",
+                "location": "https://$FQDN:9999/pf-admin-api/v1/passwordCredentialValidators/descriptors/org.sourceid.saml20.domain.LDAPUsernamePasswordCredentialValidator"
+            },
+            "configuration": {
+                "tables": [
+                    {
+                        "name": "Authentication Error Overrides",
+                        "rows": []
+                    }
+                ],
+                "fields": [
+                    {
+                        "name": "LDAP Datastore",
+                        "value": "DATA_STORE_ID"
+                    },
+                    {
+                        "name": "Search Base",
+                        "value": "USER_SEARCH_BASE"
+                    },
+                    {
+                        "name": "Search Filter",
+                        "value": "uid=${username}"
+                    },
+                    {
+                        "name": "Scope of Search",
+                        "value": "Subtree"
+                    },
+                    {
+                        "name": "Case-Sensitive Matching",
+                        "value": "true"
+                    },
+                    {
+                        "name": "Display Name Attribute",
+                        "value": "displayName"
+                    },
+                    {
+                        "name": "Mail Attribute",
+                        "value": "mail"
+                    },
+                    {
+                        "name": "SMS Attribute",
+                        "value": ""
+                    },
+                    {
+                        "name": "PingID Username Attribute",
+                        "value": ""
+                    },
+                    {
+                        "name": "Mail Search Filter",
+                        "value": ""
+                    },
+                    {
+                        "name": "Username Attribute",
+                        "value": ""
+                    },
+                    {
+                        "name": "Mail Verified Attribute",
+                        "value": ""
+                    },
+                    {
+                        "name": "Enable PingDirectory Detailed Password Policy Requirement Messaging",
+                        "value": "true"
+                    }
+                ]
+            },
+            "attributeContract": {
+                "coreAttributes": [
+                    {
+                        "name": "mail"
+                    },
+                    {
+                        "name": "givenName"
+                    },
+                    {
+                        "name": "DN"
+                    },
+                    {
+                        "name": "username"
+                    }
+                ],
+                "extendedAttributes": []
+            }
+        }}'
+printf "\n"
+printf "\n"
+echo "Creating IdP Adapter"
+curl --insecure -X POST \
+  https://localhost:9999/pf-admin-api/v1/idp/adapters \
+  -H 'Accept: */*' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Authorization: Basic '$B64_ADMIN_PW'' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 11520' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: localhost:9999' \
+  -H 'X-XSRF-Header: pingfederate' \
+  -H 'cache-control: no-cache' \
+  -d '{
+    
+
+            "id": "ADAPTER_ID",
+            "name": "ADAPTER_NAME",
+            "pluginDescriptorRef": {
+                "id": "com.pingidentity.adapters.htmlform.idp.HtmlFormIdpAuthnAdapter",
+                "location": "https://$FQDN:9999/pf-admin-api/v1/idp/adapters/descriptors/com.pingidentity.adapters.htmlform.idp.HtmlFormIdpAuthnAdapter"
+            },
+            "configuration": {
+                "tables": [
+                    {
+                        "name": "Credential Validators",
+                        "rows": [
+                            {
+                                "fields": [
+                                    {
+                                        "name": "Password Credential Validator Instance",
+                                        "value": "PCV_ID"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "fields": [
+                    {
+                        "name": "Challenge Retries",
+                        "value": "3"
+                    },
+                    {
+                        "name": "Session State",
+                        "value": "None"
+                    },
+                    {
+                        "name": "Session Timeout",
+                        "value": "60"
+                    },
+                    {
+                        "name": "Session Max Timeout",
+                        "value": "480"
+                    },
+                    {
+                        "name": "Allow Password Changes",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Password Management System",
+                        "value": ""
+                    },
+                    {
+                        "name": "Enable '\''Remember My Username'\''",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Enable '\''This is My Device'\''",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Change Password Email Notification",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Show Password Expiring Warning",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Password Reset Type",
+                        "value": "NONE"
+                    },
+                    {
+                        "name": "Password Reset Policy Contract",
+                        "value": ""
+                    },
+                    {
+                        "name": "Account Unlock",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Local Identity Profile",
+                        "value": ""
+                    },
+                    {
+                        "name": "Notification Publisher",
+                        "value": ""
+                    },
+                    {
+                        "name": "Enable Username Recovery",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Login Template",
+                        "value": "html.form.login.template.html"
+                    },
+                    {
+                        "name": "Logout Path",
+                        "value": ""
+                    },
+                    {
+                        "name": "Logout Redirect",
+                        "value": ""
+                    },
+                    {
+                        "name": "Logout Template",
+                        "value": "idp.logout.success.page.template.html"
+                    },
+                    {
+                        "name": "Change Password Template",
+                        "value": "html.form.change.password.template.html"
+                    },
+                    {
+                        "name": "Change Password Message Template",
+                        "value": "html.form.message.template.html"
+                    },
+                    {
+                        "name": "Password Management System Message Template",
+                        "value": "html.form.message.template.html"
+                    },
+                    {
+                        "name": "Change Password Email Template",
+                        "value": "message-template-end-user-password-change.html"
+                    },
+                    {
+                        "name": "Expiring Password Warning Template",
+                        "value": "html.form.password.expiring.notification.template.html"
+                    },
+                    {
+                        "name": "Threshold for Expiring Password Warning",
+                        "value": "7"
+                    },
+                    {
+                        "name": "Snooze Interval for Expiring Password Warning",
+                        "value": "24"
+                    },
+                    {
+                        "name": "Login Challenge Template",
+                        "value": "html.form.login.challenge.template.html"
+                    },
+                    {
+                        "name": "'\''Remember My Username'\'' Lifetime",
+                        "value": "30"
+                    },
+                    {
+                        "name": "'\''This is My Device'\'' Lifetime",
+                        "value": "30"
+                    },
+                    {
+                        "name": "Allow Username Edits During Chaining",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Track Authentication Time",
+                        "value": "true"
+                    },
+                    {
+                        "name": "Post-Password Change Re-Authentication Delay",
+                        "value": "0"
+                    },
+                    {
+                        "name": "Password Reset Username Template",
+                        "value": "forgot-password.html"
+                    },
+                    {
+                        "name": "Password Reset Code Template",
+                        "value": "forgot-password-resume.html"
+                    },
+                    {
+                        "name": "Password Reset Template",
+                        "value": "forgot-password-change.html"
+                    },
+                    {
+                        "name": "Password Reset Error Template",
+                        "value": "forgot-password-error.html"
+                    },
+                    {
+                        "name": "Password Reset Success Template",
+                        "value": "forgot-password-success.html"
+                    },
+                    {
+                        "name": "Account Unlock Template",
+                        "value": "account-unlock.html"
+                    },
+                    {
+                        "name": "OTP Length",
+                        "value": "8"
+                    },
+                    {
+                        "name": "OTP Time to Live",
+                        "value": "10"
+                    },
+                    {
+                        "name": "PingID Properties",
+                        "value": ""
+                    },
+                    {
+                        "name": "Require Verified Email",
+                        "value": "false"
+                    },
+                    {
+                        "name": "Username Recovery Template",
+                        "value": "username.recovery.template.html"
+                    },
+                    {
+                        "name": "Username Recovery Info Template",
+                        "value": "username.recovery.info.template.html"
+                    },
+                    {
+                        "name": "Username Recovery Email Template",
+                        "value": "message-template-username-recovery.html"
+                    },
+                    {
+                        "name": "CAPTCHA for Authentication",
+                        "value": "false"
+                    },
+                    {
+                        "name": "CAPTCHA for Password change",
+                        "value": "false"
+                    },
+                    {
+                        "name": "CAPTCHA for Password Reset",
+                        "value": "false"
+                    },
+                    {
+                        "name": "CAPTCHA for Username recovery",
+                        "value": "false"
+                    }
+                ]
+            },
+            "attributeContract": {
+                "coreAttributes": [
+                    {
+                        "name": "policy.action",
+                        "masked": false,
+                        "pseudonym": false
+                    },
+                    {
+                        "name": "username",
+                        "masked": false,
+                        "pseudonym": true
+                    }
+                ],
+                "extendedAttributes": [
+                    {
+                        "name": "mail",
+                        "masked": false,
+                        "pseudonym": false
+                    },
+                    {
+                        "name": "givenName",
+                        "masked": false,
+                        "pseudonym": false
+                    },
+                    {
+                        "name": "DN",
+                        "masked": false,
+                        "pseudonym": false
+                    }
+                ],
+                "maskOgnlValues": false
+            },
+            "attributeMapping": {
+                "attributeSources": [],
+                "attributeContractFulfillment": {
+                    "mail": {
+                        "source": {
+                            "type": "ADAPTER"
+                        },
+                        "value": "mail"
+                    },
+                    "policy.action": {
+                        "source": {
+                            "type": "ADAPTER"
+                        },
+                        "value": "policy.action"
+                    },
+                    "givenName": {
+                        "source": {
+                            "type": "ADAPTER"
+                        },
+                        "value": "givenName"
+                    },
+                    "DN": {
+                        "source": {
+                            "type": "ADAPTER"
+                        },
+                        "value": "DN"
+                    },
+                    "username": {
+                        "source": {
+                            "type": "ADAPTER"
+                        },
+                        "value": "username"
+                    }
+                },
+                "issuanceCriteria": {
+                    "conditionalCriteria": []
+                }
+            }
+}'
+printf "\n"
+printf "\n"
+
