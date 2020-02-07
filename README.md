@@ -1,0 +1,2 @@
+# PingProfiles
+Ping server profiles
