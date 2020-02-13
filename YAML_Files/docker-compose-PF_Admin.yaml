@@ -6,11 +6,11 @@ services:
     container_name: pingfederate
     command: entrypoint.sh start-server
     environment:
-            #      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
-      - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
-      - SERVER_PROFILE_PATH=baseline/pingfederate
+      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
+      - SERVER_PROFILE_PATH=server_profiles/PingFederate/Admin
       - SERVER_PROFILE_UPDATE=false
       - OPERATIONAL_MODE=CLUSTERED_CONSOLE
+      - PF_LOG_LEVEL=DEBUG
       - CLUSTER_BIND_ADDRESS=LINK_LOCAL
       - CLUSTER_NAME=COMPOSE_PF_CLUSTER
       - DNS_QUERY_LOCATION=pingfederate-admin
