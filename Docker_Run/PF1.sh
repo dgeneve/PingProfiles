@@ -9,9 +9,9 @@ sudo docker run -d \
 --env-file /home/dkgeneve/.pingidentity/devops \
 --env PING_IDENTITY_ACCEPT_EULA=YES \
 --env PF_LOG_LEVEL=DEBUG \
---env SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles \
---env SERVER_PROFILE_PATH=serverProfiles/pingfederate \
 --env OPERATIONAL_MODE=CLUSTERED_CONSOLE \
+--volume /tmp/Docker:/opt/in \
+--volume /tmp/Docker:/opt/out \
 pingidentity/pingfederate:9.3.3-edge
 	;;
 	start)
@@ -31,7 +31,6 @@ pingidentity/pingfederate:9.3.3-edge
 	;;
 	*)
 		echo "Usage:"
-		echo "./PF.sh run"
 		echo "./PF.sh start"
 		echo "./PF.sh stop"
 	       	echo "./PF.sh remove"
