@@ -18,8 +18,9 @@ services:
       - PING_IDENTITY_ACCEPT_EULA=YES
     env_file:
       - /home/dkgeneve/.pingidentity/devops
-        #    volumes:
-        #- /tmp/pingfederate.lic:/opt/in/instance/server/default/conf/pingfederate.lic
+    volumes:
+      - /tmp/pingfederate.lic:/opt/in/instance/server/default/conf/pingfederate.lic
+      - /tmp/Docker/PFOut:/opt/out
     ports:
       - 9031:9031
       - 9999:9999
