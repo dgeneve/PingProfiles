@@ -37,10 +37,6 @@ services:
       - PING_IDENTITY_ACCEPT_EULA=YES
     env_file:
       - ~/.pingidentity/devops
-    #volumes:
-    #   - ${HOME}/projects/devops/volumes/simple-sync.pingdirectory:/opt/out
-    #   - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingdirectory:/opt/in
-
     ports:
       - 1636:1636
       - 1443:1443
@@ -55,5 +51,19 @@ services:
     networks:
       - pingnet
 
+  pingaccess:
+    image: pingidentity/pingaccess:${PING_IDENTITY_DEVOPS_TAG}
+    command: wait-for pingfederate:9031 -t 420 -- entrypoint.sh start-server
+    environment: 
+      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
+      - SERVER_PROFILE_PATH=serverProfiles/pingaccess
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    env_file:
+      - ~/.pingidentity/devops
+    ports:
+      - 443:7443
+      - 9000:9000
+    networks:
+      - pingnet
 networks:
       pingnet:
