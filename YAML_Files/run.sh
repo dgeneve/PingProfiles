@@ -6,7 +6,7 @@ if [ -z "$OPTION" ]; then
 	show_help
 	exit
 fi
-case "$1" in
+case "$OPTION" in
 	up)
 		DCMD="up -d"
 	;;
