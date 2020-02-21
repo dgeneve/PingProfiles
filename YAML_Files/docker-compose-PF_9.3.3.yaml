@@ -1,9 +1,11 @@
-version: "3.1"
-
+version: "3.5"
+#####################################################################
+# This yaml file will start a single container of PingFederate 9.3.3
+#####################################################################
 services:
   pingfederate:
     image: pingidentity/pingfederate:9.3.3-edge
-    container_name: PF933
+    container_name: pingfederate933
     command: entrypoint.sh start-server
     environment:
             #- SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
@@ -17,7 +19,7 @@ services:
       - PF_LOG_LEVEL=DEBUG
       - PING_IDENTITY_ACCEPT_EULA=YES
     env_file:
-      - /home/dkgeneve/.pingidentity/devops
+      - ~/.pingidentity/devops
         #volumes:
         #- /tmp/pingfederate.lic:/opt/in/instance/server/default/conf/pingfederate.lic
     ports:
@@ -28,3 +30,4 @@ services:
 
 networks:
       pingnet:
+        name: pingnet

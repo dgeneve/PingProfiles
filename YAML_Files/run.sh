@@ -1,5 +1,6 @@
 #/bin/bash
 OPTION=$1
+YAML_FILE=$2
 main()
 {
 if [ -z "$OPTION" ]; then
@@ -22,10 +23,10 @@ case "$OPTION" in
 		exit
 	;;
 esac
-if [ ! -z "$2" ]; then
-	YAML_FILE="-f $2"
+if [ ! -z "$YAML_FILE" ]; then
+	YAML_CMD="-f $YAML_FILE"
 fi
-sudo --preserve-env=PING_IDENTITY_DEVOPS_TAG,PING_IDENTITY_DEVOPS_USER,PING_IDENTITY_DEVOPS_KEY,PING_IDENTITY_DEVOPS_HOME /usr/local/bin/docker-compose $YAML_FILE $DCMD
+sudo --preserve-env=PING_IDENTITY_DEVOPS_TAG,PING_IDENTITY_DEVOPS_USER,PING_IDENTITY_DEVOPS_KEY,PING_IDENTITY_DEVOPS_HOME /usr/local/bin/docker-compose $YAML_CMD $DCMD
 }
 show_help()
 {
