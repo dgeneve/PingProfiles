@@ -1,0 +1,59 @@
+version: "3.1"
+
+services:
+  pingfederate:
+    image: pingidentity/pingfederate:${PING_IDENTITY_DEVOPS_TAG}
+    command: wait-for pingdirectory:389 -t 300 -- entrypoint.sh start-server
+    container_name: pingfederate
+    command: entrypoint.sh start-server
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
+      - SERVER_PROFILE_PATH=serverProfiles/pingfederate
+      - SERVER_PROFILE_UPDATE=false
+      - OPERATIONAL_MODE=STANDALONE
+      - CLUSTER_BIND_ADDRESS=LINK_LOCAL
+      - PF_CLUSTER_NAME=COMPOSE_PF_CLUSTER
+      - DNS_QUERY_LOCATION=pingfederate-admin
+      - DNS_RECORD_TYPE=A
+      - PF_LOG_LEVEL=DEBUG
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    env_file:
+      - /home/dkgeneve/.pingidentity/devops
+    volumes:
+      - /tmp/pingfederate.lic:/opt/in/instance/server/default/conf/pingfederate.lic
+      - /tmp/Docker/PFOut:/opt/out
+    ports:
+      - 9031:9031
+      - 9999:9999
+    networks:
+      - pingnet
+
+  pingdirectory:
+    image: pingidentity/pingdirectory:${PING_IDENTITY_DEVOPS_TAG}
+    container_name: pingdirectory
+    environment:
+      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
+      - SERVER_PROFILE_PATH=serverProfiles/pingdirectory
+      - PING_IDENTITY_ACCEPT_EULA=YES
+    env_file:
+      - /home/dkgeneve/.pingidentity/devops
+    #volumes:
+    #   - ${HOME}/projects/devops/volumes/simple-sync.pingdirectory:/opt/out
+    #   - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingdirectory:/opt/in
+
+    ports:
+      - 1636:1636
+      - 1443:1443
+      - 1389:1389
+    networks:
+      - pingnet
+
+  pingdataconsole:
+    image: pingidentity/pingdataconsole:${PING_IDENTITY_DEVOPS_TAG}
+    ports:
+      - 8443:8443
+    networks:
+      - pingnet
+
+networks:
+      pingnet:

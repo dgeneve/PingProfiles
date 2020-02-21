@@ -1,5 +1,7 @@
 #!/bin/bash
 echo "Accepting license"
+echo "Executing curl --insecure --ipv4 -X PUT 'https://localhost:9999/pf-admin-api/v1/license/agreement' -H 'Content-Type: application/json' -H 'X-XSRF-Header: PingFederate' -H 'cache-control: no-cache' -d '{"licenseAgreementUrl": "https://localhost:9999/pf/pf-admin-api/license-agreement","accepted": true}'"
+
 curl --insecure --ipv4 -X PUT \
   'https://localhost:9999/pf-admin-api/v1/license/agreement' \
   -H 'Content-Type: application/json' \
@@ -15,8 +17,8 @@ echo "Running curl --insecure --ipv4 --header "X-XSRF-Header: PingFederate" -v h
 "
 curl --insecure --ipv4 --header "X-XSRF-Header: PingFederate" -v https://localhost:9999/pf-admin-api/v1/license/agreement
 
-echo "Importing PingFederate License /tmp/pingfederate.1586243.licE"
-BASE64_LICENSE=$(base64 -w 0 /tmp/pingfederate.1586243.lic)
+echo "Importing PingFederate License /tmp/pingfederate.lic"
+BASE64_LICENSE=$(base64 -w 0 /tmp/pingfederate.lic)
 curl --insecure --ipv4 -X PUT \
   'https://localhost:9999/pf-admin-api/v1/license' \
   -H 'Content-Type: application/json' \
