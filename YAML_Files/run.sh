@@ -1,13 +1,20 @@
 #/bin/bash
+if [ -z "$1" ]; then
+	echo "Usage: "
+	echo "./run.sh up"
+	echo "./run.sh up yaml_file.yaml"
+	echo "./run.sh down"
+	echo "./run.sh down yaml_file.yaml"
+	echo "./run.sh ps"
+	echo "./run.sh ps yaml_file.yaml"
+	exit
+fi
 case "$1" in
-	start)
+	up)
 		DCMD="up -d"
 	;;
-	stop)
+	down)
 		DCMD=down
-	;;
-	logs)
-		DCMD=logs
 	;;
 	ps)
 		DCMD=ps
