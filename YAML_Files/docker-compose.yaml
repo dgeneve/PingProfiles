@@ -46,6 +46,7 @@ services:
 
   pingdataconsole:
     image: pingidentity/pingdataconsole:${PING_IDENTITY_DEVOPS_TAG}
+    container_name: pingdataconsole
     ports:
       - 8443:8443
     networks:
