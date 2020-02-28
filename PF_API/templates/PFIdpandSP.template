@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ADMIN_PW=$(echo ENC_ADMIN_PW | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
-B64_ADMIN_PW=$(echo -n 'administrator:'$ADMIN_PW'' | base64)
+#ADMIN_PW=$(echo ENC_ADMIN_PW | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
+B64_ADMIN_PW=$(echo -n 'administrator:'ADMIN_PW'' | base64)
 echo "Updating server settings"
 curl --insecure -X PUT \
   https://localhost:9999/pf-admin-api/v1/serverSettings \

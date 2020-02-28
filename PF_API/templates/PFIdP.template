@@ -1,0 +1,69 @@
+#!/bin/bash
+#ADMIN_PW=$(echo ENC_ADMIN_PW | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
+B64_ADMIN_PW=$(echo -n 'administrator:'ADMIN_PW'' | base64)
+
+echo "Updating server settings"
+curl --insecure -X PUT \
+  https://localhost:9999/pf-admin-api/v1/serverSettings \
+  -H 'Accept: */*' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Authorization: Basic '$B64_ADMIN_PW'' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 1307' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: localhost:9999' \
+  -H 'X-XSRF-Header: pingfederate' \
+  -H 'cache-control: no-cache' \
+  -d '{
+  "contactInfo": {
+    "company": "COMPANY",
+    "email": "CONTACT_EMAIL",
+    "firstName": "FIRST_NAME",
+    "lastName": ""LAST_NAME",
+    "phone": "PHONE"
+  },
+   "rolesAndProtocols": {
+    "oauthRole": {
+      "enableOauth": "true",
+      "enableOpenIdConnect": "true"
+    },
+    "idpRole": {
+      "enable": "true",
+      "saml20Profile": {
+        "enable": "true",
+        "enableAutoConnect": "false"
+      },
+      "enableOutboundProvisioning": "false",
+      "enableSaml11": "false",
+      "enableSaml10": "false",
+      "enableWsFed": "false",
+      "enableWsTrust": "false"
+    },
+    "spRole": {
+      "enable": "false",
+      "saml20Profile": {
+        "enable": "false",
+        "enableXASP": "false",
+        "enableAutoConnect": "false"
+      },
+      "enableSaml11": "false",
+      "enableSaml10": "false",
+      "enableWsFed": "false",
+      "enableWsTrust": "false",
+      "enableOpenIDConnect": "false",
+      "enableInboundProvisioning": "false"
+    },
+    "enableIdpDiscovery": "false"
+  },
+  "federationInfo": {
+    "baseUrl": "BASE_URL",
+    "saml2EntityId": "ENTITY_ID",
+    "autoConnectEntityId": "",
+    "saml1xIssuerId": "",
+    "saml1xSourceId": "",
+    "wsfedRealm": ""
+  }
+}'
+printf "\n"
+printf "\n"

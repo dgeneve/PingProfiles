@@ -14,8 +14,8 @@ printf "\n"
 
 curl --insecure --ipv4 --header "X-XSRF-Header: PingFederate" -v https://localhost:9999/pf-admin-api/v1/license/agreement
 
-echo "Importing PingFederate License INSTALLER_LOCATION/LICENSE_FILE"
-BASE64_LICENSE=$(base64 -w 0 INSTALLER_LOCATION/LICENSE_FILE)
+echo "Importing PingFederate License LICENSE_FILE"
+BASE64_LICENSE=$(base64 -w 0 LICENSE_FILE)
 curl --insecure --ipv4 -X PUT \
   'https://localhost:9999/pf-admin-api/v1/license' \
   -H 'Content-Type: application/json' \
@@ -25,25 +25,3 @@ curl --insecure --ipv4 -X PUT \
 printf "\n"
 printf "\n"
 
-ADMIN_PW=$(echo ENC_ADMIN_PW | openssl enc -aes-128-cbc -a -d -salt -pass pass:wtf)
-echo "Updating administrator password"
-curl --insecure --ipv4 -X POST \
-  https://localhost:9999/pf-admin-api/v1/administrativeAccounts \
-  -H 'Content-Type: application/json' \
-  -H 'X-XSRF-Header: PingFederate' \
-  -H 'cache-control: no-cache' \
-  -d '{
-  "username": "Administrator",
-  "password": "'${ADMIN_PW}'",
-  "active": true,
-  "description": "Initial Admin User",
-  "auditor": false,
-  "emailAddress": "ADMIN_EMAIL",
-  "roles": [
-    "USER_ADMINISTRATOR",
-    "ADMINISTRATOR",
-    "CRYPTO_ADMINISTRATOR"
-  ]
-}'
-printf "\n"
-printf "\n"
