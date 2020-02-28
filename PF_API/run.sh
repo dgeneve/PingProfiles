@@ -6,14 +6,12 @@ echo "Updating license"
 update_license
 echo "Updating password"
 update_password
-#echo "Configuring role"
-#configure_role
+echo "Configuring role"
+configure_role
 }
-update_file()
-{
-echo "Updating $1 to $2 in $3"
-sed -i "s|$1|$2|g" $3
-}
+#########################################
+# This function will accept and update the license
+#########################################
 update_license()
 {
 cp templates/license.template ./license.sh
@@ -21,6 +19,9 @@ update_file LICENSE_FILE $LICENSE_FILE ./license.sh
 ./license.sh
 remove_file ./license.sh
 }
+#########################################
+# This function will update the administrator password
+#########################################
 update_password()
 {
 cp templates/password.template ./password.sh
@@ -29,6 +30,9 @@ update_file ADMIN_EMAIL $ADMIN_EMAIL ./password.sh
 ./password.sh
 remove_file ./password.sh
 }
+#########################################
+# This function will configure the server role
+#########################################
 configure_role()
 {
 case "$ROLE" in
@@ -56,6 +60,17 @@ update_file ENTITY_ID "$ENTITY_ID" ./$TEMPLATE_FILE
 ./$TEMPLATE_FILE
 remove_file ./$TEMPLATE_FILE
 }
+#########################################
+# This function will update a file
+#########################################
+update_file()
+{
+echo "Updating $1 to $2 in $3"
+sed -i "s|$1|$2|g" $3
+}
+#########################################
+# This function will remove a file
+#########################################
 remove_file()
 {
 echo "Removing $1"
