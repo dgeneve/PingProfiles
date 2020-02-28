@@ -7,7 +7,7 @@ update_license
 echo "Updating password"
 update_password
 echo "Configuring role"
-configure_role
+update_role
 }
 #########################################
 # This function will accept and update the license
@@ -31,9 +31,9 @@ update_file ADMIN_EMAIL $ADMIN_EMAIL ./password.sh
 remove_file ./password.sh
 }
 #########################################
-# This function will configure the server role
+# This function will update the server role
 #########################################
-configure_role()
+update_role()
 {
 case "$ROLE" in
 	IDP)
