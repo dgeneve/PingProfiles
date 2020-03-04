@@ -3,7 +3,6 @@ version: "3.5"
 services:
   pingfederate:
     image: pingidentity/pingfederate:9.3.3-edge
-    command: wait-for pingdirectory7303:1389 -t 300 -- entrypoint.sh start-server
     container_name: pingfederate933
     command: entrypoint.sh start-server
     environment:
@@ -25,24 +24,6 @@ services:
     ports:
       - 9031:9031
       - 9999:9999
-    networks:
-      - pingnet
-
-  pingdirectory:
-    image: pingidentity/pingdirectory:7.3.0.3-edge
-    container_name: pingdirectory7303
-    environment:
-      - SERVER_PROFILE_URL=https://github.com/dgeneve/PingProfiles.git
-      - SERVER_PROFILE_PATH=serverProfiles/pingdirectory
-      - PING_IDENTITY_ACCEPT_EULA=YES
-    env_file:
-      - ~/.pingidentity/devops
-    volumes:
-      - /opt/Docker/PD7303:/opt/out
-    ports:
-      - 1636:1636
-      - 1443:1443
-      - 1389:1389
     networks:
       - pingnet
 
